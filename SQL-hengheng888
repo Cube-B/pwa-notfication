@@ -1,0 +1,313 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 16.10 (Homebrew)
+-- Dumped by pg_dump version 17.0
+
+-- Started on 2025-12-19 23:32:57 +07
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 220 (class 1259 OID 16756)
+-- Name: notification_logs; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.notification_logs (
+    id integer NOT NULL,
+    subscription_id integer,
+    title text NOT NULL,
+    body text NOT NULL,
+    icon text,
+    sent_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    status text DEFAULT 'sent'::text
+);
+
+
+ALTER TABLE public.notification_logs OWNER TO privatoffy;
+
+--
+-- TOC entry 219 (class 1259 OID 16755)
+-- Name: notification_logs_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.notification_logs_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.notification_logs_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 3835 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: notification_logs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.notification_logs_id_seq OWNED BY public.notification_logs.id;
+
+
+--
+-- TOC entry 218 (class 1259 OID 16738)
+-- Name: push_subscriptions; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.push_subscriptions (
+    id integer NOT NULL,
+    user_id integer,
+    endpoint text NOT NULL,
+    p256dh text NOT NULL,
+    auth text NOT NULL,
+    user_agent text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    last_used timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.push_subscriptions OWNER TO privatoffy;
+
+--
+-- TOC entry 217 (class 1259 OID 16737)
+-- Name: push_subscriptions_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.push_subscriptions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.push_subscriptions_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 3836 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: push_subscriptions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.push_subscriptions_id_seq OWNED BY public.push_subscriptions.id;
+
+
+--
+-- TOC entry 216 (class 1259 OID 16723)
+-- Name: users; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.users (
+    id integer NOT NULL,
+    username text NOT NULL,
+    email text,
+    password_hash text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.users OWNER TO privatoffy;
+
+--
+-- TOC entry 215 (class 1259 OID 16722)
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.users_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.users_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 3837 (class 0 OID 0)
+-- Dependencies: 215
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
+
+
+--
+-- TOC entry 3664 (class 2604 OID 16759)
+-- Name: notification_logs id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_logs ALTER COLUMN id SET DEFAULT nextval('public.notification_logs_id_seq'::regclass);
+
+
+--
+-- TOC entry 3661 (class 2604 OID 16741)
+-- Name: push_subscriptions id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.push_subscriptions ALTER COLUMN id SET DEFAULT nextval('public.push_subscriptions_id_seq'::regclass);
+
+
+--
+-- TOC entry 3658 (class 2604 OID 16726)
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
+
+
+--
+-- TOC entry 3829 (class 0 OID 16756)
+-- Dependencies: 220
+-- Data for Name: notification_logs; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.notification_logs (id, subscription_id, title, body, icon, sent_at, status) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3827 (class 0 OID 16738)
+-- Dependencies: 218
+-- Data for Name: push_subscriptions; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.push_subscriptions (id, user_id, endpoint, p256dh, auth, user_agent, created_at, last_used) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3825 (class 0 OID 16723)
+-- Dependencies: 216
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.users (id, username, email, password_hash, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3838 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: notification_logs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.notification_logs_id_seq', 10, true);
+
+
+--
+-- TOC entry 3839 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: push_subscriptions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.push_subscriptions_id_seq', 3, true);
+
+
+--
+-- TOC entry 3840 (class 0 OID 0)
+-- Dependencies: 215
+-- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.users_id_seq', 1, false);
+
+
+--
+-- TOC entry 3678 (class 2606 OID 16765)
+-- Name: notification_logs notification_logs_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_logs
+    ADD CONSTRAINT notification_logs_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3674 (class 2606 OID 16749)
+-- Name: push_subscriptions push_subscriptions_endpoint_key; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.push_subscriptions
+    ADD CONSTRAINT push_subscriptions_endpoint_key UNIQUE (endpoint);
+
+
+--
+-- TOC entry 3676 (class 2606 OID 16747)
+-- Name: push_subscriptions push_subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.push_subscriptions
+    ADD CONSTRAINT push_subscriptions_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3668 (class 2606 OID 16736)
+-- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_email_key UNIQUE (email);
+
+
+--
+-- TOC entry 3670 (class 2606 OID 16732)
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3672 (class 2606 OID 16734)
+-- Name: users users_username_key; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_username_key UNIQUE (username);
+
+
+--
+-- TOC entry 3680 (class 2606 OID 16766)
+-- Name: notification_logs notification_logs_subscription_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_logs
+    ADD CONSTRAINT notification_logs_subscription_id_fkey FOREIGN KEY (subscription_id) REFERENCES public.push_subscriptions(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3679 (class 2606 OID 16750)
+-- Name: push_subscriptions push_subscriptions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.push_subscriptions
+    ADD CONSTRAINT push_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+-- Completed on 2025-12-19 23:32:58 +07
+
+--
+-- PostgreSQL database dump complete
+--
+
