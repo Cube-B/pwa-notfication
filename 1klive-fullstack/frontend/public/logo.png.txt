@@ -1,0 +1,17 @@
+⚠️ สำคัญ: กรุณาเตรียมไฟล์ logo.png ของคุณเอง
+
+ข้อกำหนดสำหรับ Logo:
+- ขนาด: 512x512 pixels (แนะนำ)
+- รูปแบบ: PNG (รองรับ transparency)
+- สี: ตรงกับธีม 1klive (Pink/Purple/Cyan)
+- คุณภาพ: สูง สำหรับการแสดงผลบนหน้าจอ retina
+
+วิธีเพิ่ม Logo:
+1. เตรียมไฟล์ logo.png ขนาด 512x512px
+2. วางไฟล์ใน: frontend/public/logo.png
+3. ลบไฟล์ logo.png.txt นี้
+
+หรือใช้ online tool สร้าง logo:
+- https://www.canva.com/
+- https://www.figma.com/
+- https://favicon.io/
