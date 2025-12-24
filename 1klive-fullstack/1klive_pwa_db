@@ -1,0 +1,1450 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 16.10 (Homebrew)
+-- Dumped by pg_dump version 17.0
+
+-- Started on 2025-12-24 00:41:35 +07
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- TOC entry 226 (class 1259 OID 16906)
+-- Name: activity_logs; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.activity_logs (
+    id integer NOT NULL,
+    admin_id integer,
+    action character varying(50) NOT NULL,
+    entity_type character varying(50),
+    entity_id integer,
+    details jsonb,
+    ip_address character varying(45),
+    user_agent text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.activity_logs OWNER TO privatoffy;
+
+--
+-- TOC entry 3982 (class 0 OID 0)
+-- Dependencies: 226
+-- Name: TABLE activity_logs; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON TABLE public.activity_logs IS 'Audit log of admin actions';
+
+
+--
+-- TOC entry 225 (class 1259 OID 16905)
+-- Name: activity_logs_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.activity_logs_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.activity_logs_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 3983 (class 0 OID 0)
+-- Dependencies: 225
+-- Name: activity_logs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.activity_logs_id_seq OWNED BY public.activity_logs.id;
+
+
+--
+-- TOC entry 224 (class 1259 OID 16851)
+-- Name: admin_sessions; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.admin_sessions (
+    id integer NOT NULL,
+    admin_id integer,
+    token_hash text NOT NULL,
+    ip_address character varying(45),
+    user_agent text,
+    expires_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.admin_sessions OWNER TO privatoffy;
+
+--
+-- TOC entry 3984 (class 0 OID 0)
+-- Dependencies: 224
+-- Name: TABLE admin_sessions; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON TABLE public.admin_sessions IS 'Active admin sessions with JWT tokens';
+
+
+--
+-- TOC entry 223 (class 1259 OID 16850)
+-- Name: admin_sessions_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.admin_sessions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.admin_sessions_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 3985 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: admin_sessions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.admin_sessions_id_seq OWNED BY public.admin_sessions.id;
+
+
+--
+-- TOC entry 222 (class 1259 OID 16828)
+-- Name: admins; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.admins (
+    id integer NOT NULL,
+    username character varying(50) NOT NULL,
+    email character varying(255) NOT NULL,
+    password_hash text NOT NULL,
+    full_name character varying(100),
+    role character varying(20) DEFAULT 'admin'::character varying,
+    is_active boolean DEFAULT true,
+    last_login_at timestamp without time zone,
+    last_login_ip character varying(45),
+    created_by integer,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT admins_role_check CHECK (((role)::text = ANY ((ARRAY['super_admin'::character varying, 'admin'::character varying, 'viewer'::character varying])::text[])))
+);
+
+
+ALTER TABLE public.admins OWNER TO privatoffy;
+
+--
+-- TOC entry 3986 (class 0 OID 0)
+-- Dependencies: 222
+-- Name: TABLE admins; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON TABLE public.admins IS 'Admin users with role-based access';
+
+
+--
+-- TOC entry 221 (class 1259 OID 16827)
+-- Name: admins_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.admins_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.admins_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 3987 (class 0 OID 0)
+-- Dependencies: 221
+-- Name: admins_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.admins_id_seq OWNED BY public.admins.id;
+
+
+--
+-- TOC entry 230 (class 1259 OID 16938)
+-- Name: analytics_snapshots; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.analytics_snapshots (
+    id integer NOT NULL,
+    snapshot_date date NOT NULL,
+    total_subscriptions integer DEFAULT 0,
+    active_subscriptions integer DEFAULT 0,
+    new_subscriptions integer DEFAULT 0,
+    total_notifications_sent integer DEFAULT 0,
+    notification_success_rate numeric(5,2),
+    carrier_breakdown jsonb,
+    device_breakdown jsonb,
+    location_breakdown jsonb,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.analytics_snapshots OWNER TO privatoffy;
+
+--
+-- TOC entry 3988 (class 0 OID 0)
+-- Dependencies: 230
+-- Name: TABLE analytics_snapshots; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON TABLE public.analytics_snapshots IS 'Daily analytics data for performance';
+
+
+--
+-- TOC entry 229 (class 1259 OID 16937)
+-- Name: analytics_snapshots_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.analytics_snapshots_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.analytics_snapshots_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 3989 (class 0 OID 0)
+-- Dependencies: 229
+-- Name: analytics_snapshots_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.analytics_snapshots_id_seq OWNED BY public.analytics_snapshots.id;
+
+
+--
+-- TOC entry 232 (class 1259 OID 16992)
+-- Name: health_check_logs; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.health_check_logs (
+    id integer NOT NULL,
+    target_url text NOT NULL,
+    is_accessible boolean NOT NULL,
+    response_time_ms integer,
+    error_message text,
+    checked_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.health_check_logs OWNER TO privatoffy;
+
+--
+-- TOC entry 3990 (class 0 OID 0)
+-- Dependencies: 232
+-- Name: TABLE health_check_logs; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON TABLE public.health_check_logs IS 'Health check history for target URLs';
+
+
+--
+-- TOC entry 231 (class 1259 OID 16991)
+-- Name: health_check_logs_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.health_check_logs_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.health_check_logs_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 3991 (class 0 OID 0)
+-- Dependencies: 231
+-- Name: health_check_logs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.health_check_logs_id_seq OWNED BY public.health_check_logs.id;
+
+
+--
+-- TOC entry 233 (class 1259 OID 17008)
+-- Name: latest_health_checks; Type: VIEW; Schema: public; Owner: privatoffy
+--
+
+CREATE VIEW public.latest_health_checks AS
+ SELECT DISTINCT ON (target_url) target_url,
+    is_accessible,
+    response_time_ms,
+    error_message,
+    checked_at
+   FROM public.health_check_logs
+  ORDER BY target_url, checked_at DESC;
+
+
+ALTER VIEW public.latest_health_checks OWNER TO privatoffy;
+
+--
+-- TOC entry 220 (class 1259 OID 16799)
+-- Name: notification_deliveries; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.notification_deliveries (
+    id integer NOT NULL,
+    notification_id integer,
+    subscription_id integer,
+    delivered boolean DEFAULT false,
+    delivered_at timestamp without time zone,
+    error_message text
+);
+
+
+ALTER TABLE public.notification_deliveries OWNER TO privatoffy;
+
+--
+-- TOC entry 219 (class 1259 OID 16798)
+-- Name: notification_deliveries_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.notification_deliveries_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.notification_deliveries_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 3992 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: notification_deliveries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.notification_deliveries_id_seq OWNED BY public.notification_deliveries.id;
+
+
+--
+-- TOC entry 238 (class 1259 OID 17050)
+-- Name: notification_logs; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.notification_logs (
+    id integer NOT NULL,
+    admin_id integer,
+    title character varying(255) NOT NULL,
+    body text NOT NULL,
+    url text,
+    target character varying(50),
+    carriers jsonb,
+    device_types jsonb,
+    status character varying(50) DEFAULT 'sent'::character varying,
+    sent_count integer DEFAULT 0,
+    failed_count integer DEFAULT 0,
+    total_count integer DEFAULT 0,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.notification_logs OWNER TO privatoffy;
+
+--
+-- TOC entry 237 (class 1259 OID 17049)
+-- Name: notification_logs_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.notification_logs_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.notification_logs_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 3993 (class 0 OID 0)
+-- Dependencies: 237
+-- Name: notification_logs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.notification_logs_id_seq OWNED BY public.notification_logs.id;
+
+
+--
+-- TOC entry 236 (class 1259 OID 17037)
+-- Name: notification_templates; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.notification_templates (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    title character varying(255) NOT NULL,
+    body text NOT NULL,
+    url text,
+    icon_url text,
+    badge_url text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.notification_templates OWNER TO privatoffy;
+
+--
+-- TOC entry 235 (class 1259 OID 17036)
+-- Name: notification_templates_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.notification_templates_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.notification_templates_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 3994 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: notification_templates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.notification_templates_id_seq OWNED BY public.notification_templates.id;
+
+
+--
+-- TOC entry 218 (class 1259 OID 16786)
+-- Name: notifications_history; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.notifications_history (
+    id integer NOT NULL,
+    title text NOT NULL,
+    body text NOT NULL,
+    icon text,
+    url text,
+    data jsonb,
+    sent_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    expires_at timestamp without time zone DEFAULT (CURRENT_TIMESTAMP + '7 days'::interval)
+);
+
+
+ALTER TABLE public.notifications_history OWNER TO privatoffy;
+
+--
+-- TOC entry 217 (class 1259 OID 16785)
+-- Name: notifications_history_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.notifications_history_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.notifications_history_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 3995 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: notifications_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.notifications_history_id_seq OWNED BY public.notifications_history.id;
+
+
+--
+-- TOC entry 234 (class 1259 OID 17014)
+-- Name: pwa_config; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.pwa_config (
+    key character varying(100) NOT NULL,
+    value text NOT NULL,
+    category character varying(50) NOT NULL,
+    description text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.pwa_config OWNER TO privatoffy;
+
+--
+-- TOC entry 216 (class 1259 OID 16773)
+-- Name: subscriptions; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.subscriptions (
+    id integer NOT NULL,
+    endpoint text NOT NULL,
+    keys_p256dh text NOT NULL,
+    keys_auth text NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    last_notification timestamp without time zone,
+    active boolean DEFAULT true,
+    carrier text,
+    carrier_ip text,
+    carrier_location text,
+    device_type text,
+    is_mobile_network boolean DEFAULT false,
+    has_mobile_carrier boolean DEFAULT false,
+    detection_method text,
+    carrier_detected_at timestamp without time zone,
+    last_carrier_check timestamp without time zone
+);
+
+
+ALTER TABLE public.subscriptions OWNER TO privatoffy;
+
+--
+-- TOC entry 3996 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: COLUMN subscriptions.carrier; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON COLUMN public.subscriptions.carrier IS 'Network carrier name (AIS, DTAC, True, etc)';
+
+
+--
+-- TOC entry 3997 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: COLUMN subscriptions.carrier_ip; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON COLUMN public.subscriptions.carrier_ip IS 'IP address when carrier was detected';
+
+
+--
+-- TOC entry 3998 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: COLUMN subscriptions.carrier_location; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON COLUMN public.subscriptions.carrier_location IS 'Location when carrier was detected';
+
+
+--
+-- TOC entry 3999 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: COLUMN subscriptions.device_type; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON COLUMN public.subscriptions.device_type IS 'Device type (iOS, Android, etc)';
+
+
+--
+-- TOC entry 4000 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: COLUMN subscriptions.is_mobile_network; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON COLUMN public.subscriptions.is_mobile_network IS 'True if detected on mobile network (not WiFi)';
+
+
+--
+-- TOC entry 4001 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: COLUMN subscriptions.has_mobile_carrier; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON COLUMN public.subscriptions.has_mobile_carrier IS 'True if mobile carrier has been detected (stop collecting)';
+
+
+--
+-- TOC entry 4002 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: COLUMN subscriptions.detection_method; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON COLUMN public.subscriptions.detection_method IS 'Method used (sim_api, ip_geo)';
+
+
+--
+-- TOC entry 4003 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: COLUMN subscriptions.carrier_detected_at; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON COLUMN public.subscriptions.carrier_detected_at IS 'When mobile carrier was first detected';
+
+
+--
+-- TOC entry 4004 (class 0 OID 0)
+-- Dependencies: 216
+-- Name: COLUMN subscriptions.last_carrier_check; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON COLUMN public.subscriptions.last_carrier_check IS 'Last time carrier detection was attempted';
+
+
+--
+-- TOC entry 215 (class 1259 OID 16772)
+-- Name: subscriptions_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.subscriptions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.subscriptions_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 4005 (class 0 OID 0)
+-- Dependencies: 215
+-- Name: subscriptions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.subscriptions_id_seq OWNED BY public.subscriptions.id;
+
+
+--
+-- TOC entry 228 (class 1259 OID 16921)
+-- Name: system_settings; Type: TABLE; Schema: public; Owner: privatoffy
+--
+
+CREATE TABLE public.system_settings (
+    id integer NOT NULL,
+    setting_key character varying(100) NOT NULL,
+    setting_value jsonb NOT NULL,
+    description text,
+    updated_by integer,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.system_settings OWNER TO privatoffy;
+
+--
+-- TOC entry 4006 (class 0 OID 0)
+-- Dependencies: 228
+-- Name: TABLE system_settings; Type: COMMENT; Schema: public; Owner: privatoffy
+--
+
+COMMENT ON TABLE public.system_settings IS 'System-wide configuration';
+
+
+--
+-- TOC entry 227 (class 1259 OID 16920)
+-- Name: system_settings_id_seq; Type: SEQUENCE; Schema: public; Owner: privatoffy
+--
+
+CREATE SEQUENCE public.system_settings_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.system_settings_id_seq OWNER TO privatoffy;
+
+--
+-- TOC entry 4007 (class 0 OID 0)
+-- Dependencies: 227
+-- Name: system_settings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: privatoffy
+--
+
+ALTER SEQUENCE public.system_settings_id_seq OWNED BY public.system_settings.id;
+
+
+--
+-- TOC entry 3723 (class 2604 OID 16909)
+-- Name: activity_logs id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.activity_logs ALTER COLUMN id SET DEFAULT nextval('public.activity_logs_id_seq'::regclass);
+
+
+--
+-- TOC entry 3721 (class 2604 OID 16854)
+-- Name: admin_sessions id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.admin_sessions ALTER COLUMN id SET DEFAULT nextval('public.admin_sessions_id_seq'::regclass);
+
+
+--
+-- TOC entry 3716 (class 2604 OID 16831)
+-- Name: admins id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.admins ALTER COLUMN id SET DEFAULT nextval('public.admins_id_seq'::regclass);
+
+
+--
+-- TOC entry 3727 (class 2604 OID 16941)
+-- Name: analytics_snapshots id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.analytics_snapshots ALTER COLUMN id SET DEFAULT nextval('public.analytics_snapshots_id_seq'::regclass);
+
+
+--
+-- TOC entry 3733 (class 2604 OID 16995)
+-- Name: health_check_logs id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.health_check_logs ALTER COLUMN id SET DEFAULT nextval('public.health_check_logs_id_seq'::regclass);
+
+
+--
+-- TOC entry 3714 (class 2604 OID 16802)
+-- Name: notification_deliveries id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_deliveries ALTER COLUMN id SET DEFAULT nextval('public.notification_deliveries_id_seq'::regclass);
+
+
+--
+-- TOC entry 3740 (class 2604 OID 17053)
+-- Name: notification_logs id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_logs ALTER COLUMN id SET DEFAULT nextval('public.notification_logs_id_seq'::regclass);
+
+
+--
+-- TOC entry 3737 (class 2604 OID 17040)
+-- Name: notification_templates id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_templates ALTER COLUMN id SET DEFAULT nextval('public.notification_templates_id_seq'::regclass);
+
+
+--
+-- TOC entry 3711 (class 2604 OID 16789)
+-- Name: notifications_history id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notifications_history ALTER COLUMN id SET DEFAULT nextval('public.notifications_history_id_seq'::regclass);
+
+
+--
+-- TOC entry 3706 (class 2604 OID 16776)
+-- Name: subscriptions id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.subscriptions ALTER COLUMN id SET DEFAULT nextval('public.subscriptions_id_seq'::regclass);
+
+
+--
+-- TOC entry 3725 (class 2604 OID 16924)
+-- Name: system_settings id; Type: DEFAULT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.system_settings ALTER COLUMN id SET DEFAULT nextval('public.system_settings_id_seq'::regclass);
+
+
+--
+-- TOC entry 3965 (class 0 OID 16906)
+-- Dependencies: 226
+-- Data for Name: activity_logs; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.activity_logs (id, admin_id, action, entity_type, entity_id, details, ip_address, user_agent, created_at) FROM stdin;
+1	1	login_failed	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 04:03:16.474293
+2	1	login_failed	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 04:06:59.631221
+3	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 04:10:52.357864
+4	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 04:39:40.330676
+5	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 04:57:25.379455
+6	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 05:07:05.271664
+7	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 05:10:18.573308
+8	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 05:11:11.447561
+9	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 05:26:11.198513
+10	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 08:39:16.220749
+11	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 08:48:38.405848
+12	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 08:48:50.501989
+13	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 08:54:06.304871
+14	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 08:54:53.286563
+15	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 09:10:30.500745
+16	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-23 23:45:25.947025
+17	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-24 00:24:22.424815
+18	1	login_success	\N	\N	{"username": "admin"}	127.0.0.1	\N	2025-12-24 00:39:00.248077
+\.
+
+
+--
+-- TOC entry 3963 (class 0 OID 16851)
+-- Dependencies: 224
+-- Data for Name: admin_sessions; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.admin_sessions (id, admin_id, token_hash, ip_address, user_agent, expires_at, created_at) FROM stdin;
+1	1	$2a$10$uKBCYzbV8HsSNHrFmWGqAOEtS.xz3h1IZ8zrtNRXmLgINzvZf.1jW	127.0.0.1	curl/8.7.1	2025-12-24 04:10:52.344	2025-12-23 04:10:52.345451
+2	1	$2a$10$GWY7w9eihqhSINGlwSJCN.CgYaLIzmk8jxy5DBJURAfCqtYp9TPfO	127.0.0.1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:146.0) Gecko/20100101 Firefox/146.0	2025-12-24 04:39:40.313	2025-12-23 04:39:40.314078
+3	1	$2a$10$jtE5eNIBfgbZOsRTOG1Ml.R7pGknGGvC3FGq08YwpR3WMK5D16Wr.	127.0.0.1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:146.0) Gecko/20100101 Firefox/146.0	2025-12-24 04:57:25.363	2025-12-23 04:57:25.36431
+4	1	$2a$10$sISlTAZVXlOXj3HxAbDA8.wh8AjAIS29TI6dvozAO4OuprwJMxUDq	127.0.0.1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:146.0) Gecko/20100101 Firefox/146.0	2025-12-24 05:07:05.246	2025-12-23 05:07:05.247913
+5	1	$2a$10$NGB1YbLHX5MkTX2F6QEUW.IGtEPrsqXCZfzjU1Uio3/Gjomm68RIK	127.0.0.1	curl/8.7.1	2025-12-24 05:10:18.562	2025-12-23 05:10:18.563237
+6	1	$2a$10$KHosJ7a/mnUk8RYM3tnNt.FkYgokXolPlcA7kT33T3BVqq/l2gT0y	127.0.0.1	curl/8.7.1	2025-12-24 05:11:11.44	2025-12-23 05:11:11.440955
+7	1	$2a$10$gVM0LFh9AQPzqUtW5V2QAOEVP6KjMU8A69xcl65U99Efw4PBeTY0O	127.0.0.1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:146.0) Gecko/20100101 Firefox/146.0	2025-12-24 05:26:11.186	2025-12-23 05:26:11.187524
+8	1	$2a$10$kazFEzphm/nYOIEPi6CqfO5N5qks/F1MM.85BNF5Lz6y/8.QWLKF.	127.0.0.1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:146.0) Gecko/20100101 Firefox/146.0	2025-12-24 08:39:16.203	2025-12-23 08:39:16.204942
+9	1	$2a$10$wTLx4afuWpsARoNWaL6z4.qE2RgEfn7H2WkzihYPpR.t0HmgYN2uO	127.0.0.1	curl/8.7.1	2025-12-24 08:48:38.391	2025-12-23 08:48:38.391837
+10	1	$2a$10$oBQNw.QtrMErgQ9pvodZXebExdChURCU04Y3i31y9DdTQozoiZL.i	127.0.0.1	curl/8.7.1	2025-12-24 08:48:50.5	2025-12-23 08:48:50.500404
+11	1	$2a$10$iK9g8BLb1gocr84pXG0whOz1TRViCDT5FH2FA8k4ouOuZv3Ok7kee	127.0.0.1	curl/8.7.1	2025-12-24 08:54:06.286	2025-12-23 08:54:06.287159
+12	1	$2a$10$HbjS384NqeIN8ZsNmVuBg.sj5xO5u1u5m64KMwVzvH7Am84nbNNDK	127.0.0.1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:146.0) Gecko/20100101 Firefox/146.0	2025-12-24 08:54:53.274	2025-12-23 08:54:53.275067
+13	1	$2a$10$UWurLsNBsbSgN4fP5kJ9E.6FcCs4H.4MREk.LiUB7/VyOzbClkpk.	127.0.0.1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:146.0) Gecko/20100101 Firefox/146.0	2025-12-24 09:10:30.486	2025-12-23 09:10:30.488362
+14	1	$2a$10$FXyiT6pKt6nDR4d25AVNSOyWTP51LKSva4uHFVNnsezgkk5QxYGjm	127.0.0.1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:146.0) Gecko/20100101 Firefox/146.0	2025-12-24 23:45:25.928	2025-12-23 23:45:25.929941
+15	1	$2a$10$i0Y/6e/v4k5ISuoDh/UQ8u8foCSS1Qugnn.LpUzSVEKqhdmSyfZHW	127.0.0.1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:146.0) Gecko/20100101 Firefox/146.0	2025-12-25 00:24:22.4	2025-12-24 00:24:22.4034
+16	1	$2a$10$tATYkWyxkgyiumfxBfm7PeFEVHsvi7GliiyNPhM7ZznfQARU1GrBK	127.0.0.1	Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:146.0) Gecko/20100101 Firefox/146.0	2025-12-25 00:39:00.234	2025-12-24 00:39:00.235508
+\.
+
+
+--
+-- TOC entry 3961 (class 0 OID 16828)
+-- Dependencies: 222
+-- Data for Name: admins; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.admins (id, username, email, password_hash, full_name, role, is_active, last_login_at, last_login_ip, created_by, created_at, updated_at) FROM stdin;
+1	admin	admin@1klive.com	$2a$10$L46f/727hrUHj7IKM26nRuhU8YbyFUnTOA8dwiOY.g1cf870EEexG	Super Administrator	super_admin	t	2025-12-24 00:39:00.15075	127.0.0.1	\N	2025-12-23 03:43:16.207184	2025-12-23 03:43:16.207184
+\.
+
+
+--
+-- TOC entry 3969 (class 0 OID 16938)
+-- Dependencies: 230
+-- Data for Name: analytics_snapshots; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.analytics_snapshots (id, snapshot_date, total_subscriptions, active_subscriptions, new_subscriptions, total_notifications_sent, notification_success_rate, carrier_breakdown, device_breakdown, location_breakdown, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3971 (class 0 OID 16992)
+-- Dependencies: 232
+-- Data for Name: health_check_logs; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.health_check_logs (id, target_url, is_accessible, response_time_ms, error_message, checked_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3959 (class 0 OID 16799)
+-- Dependencies: 220
+-- Data for Name: notification_deliveries; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.notification_deliveries (id, notification_id, subscription_id, delivered, delivered_at, error_message) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3976 (class 0 OID 17050)
+-- Dependencies: 238
+-- Data for Name: notification_logs; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.notification_logs (id, admin_id, title, body, url, target, carriers, device_types, status, sent_count, failed_count, total_count, created_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3974 (class 0 OID 17037)
+-- Dependencies: 236
+-- Data for Name: notification_templates; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.notification_templates (id, name, title, body, url, icon_url, badge_url, created_at, updated_at) FROM stdin;
+1	welcome	🎉 ยินดีต้อนรับ!	ขอบคุณที่ติดตั้ง 1klive	https://1klive.com	\N	\N	2025-12-24 00:06:59.118596	2025-12-24 00:06:59.118596
+2	live_start	🔴 ไลฟ์สดเริ่มแล้ว!	เข้ามาดูกันเลย มีของรางวัลมากมาย	https://1klive.com/live	\N	\N	2025-12-24 00:06:59.118596	2025-12-24 00:06:59.118596
+3	promotion	🎁 โปรโมชั่นพิเศษ!	ลดราคา 50% สำหรับสมาชิกใหม่ วันนี้เท่านั้น!	https://1klive.com/promo	\N	\N	2025-12-24 00:06:59.118596	2025-12-24 00:06:59.118596
+4	news	📰 ข่าวสำคัญ	อัพเดทล่าสุดจากทีมงาน 1klive	https://1klive.com/news	\N	\N	2025-12-24 00:06:59.118596	2025-12-24 00:06:59.118596
+\.
+
+
+--
+-- TOC entry 3957 (class 0 OID 16786)
+-- Dependencies: 218
+-- Data for Name: notifications_history; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.notifications_history (id, title, body, icon, url, data, sent_at, expires_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 3972 (class 0 OID 17014)
+-- Dependencies: 234
+-- Data for Name: pwa_config; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.pwa_config (key, value, category, description, created_at, updated_at) FROM stdin;
+app_name	1klive	branding	Application full name	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+app_short_name	1klive	branding	Application short name (max 12 chars)	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+app_description	Live streaming platform	branding	Application description	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+logo_url	https://1klive.com/assets/logo.png	branding	Logo image URL	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+primary_color	#667eea	branding	Primary theme color	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+secondary_color	#764ba2	branding	Secondary theme color	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+background_color	#ffffff	branding	Background color	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+theme_color	#667eea	branding	Browser theme color	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+start_url	/	urls	PWA start URL	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+home_url	https://1klive.com	urls	Main website URL	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+support_url	https://1klive.com/support	urls	Support page URL	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+terms_url	https://1klive.com/terms	urls	Terms & Conditions URL	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+privacy_url	https://1klive.com/privacy	urls	Privacy Policy URL	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+notification_icon_url	https://1klive.com/assets/notification-icon.png	notification	Notification icon URL	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+welcome_title	Welcome to 1klive!	notification	Welcome notification title	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+welcome_message	Thank you for enabling notifications.	notification	Welcome notification message	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+health_check_enabled	true	health_check	Enable health check	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+health_check_interval	300	health_check	Health check interval in seconds	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+health_check_url	https://1klive.com/health	health_check	Health check endpoint URL	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+health_check_timeout	10	health_check	Health check timeout in seconds	2025-12-23 08:53:29.379304	2025-12-23 08:53:29.379304
+\.
+
+
+--
+-- TOC entry 3955 (class 0 OID 16773)
+-- Dependencies: 216
+-- Data for Name: subscriptions; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.subscriptions (id, endpoint, keys_p256dh, keys_auth, created_at, last_notification, active, carrier, carrier_ip, carrier_location, device_type, is_mobile_network, has_mobile_carrier, detection_method, carrier_detected_at, last_carrier_check) FROM stdin;
+22	https://fcm.googleapis.com/fcm/send/cS81u75uM8I:APA91bE7k_ijlmRRsWyfJnpsvNhpbjrDUYXZVKNxW1loBH6ZzjHayXUcfV7JFId34P_20-VzSFmk9v9xdiOHcRbzeaJJreMTSp7e91gyXvS6BbkmxJ-WCvIYs12du7K1VfwTd6HIDBP2	BMuwFeFvh_6bZ3hPw9eOsmXgVxL7hKUrLewnx-8Zo0xje8-wgs9ytbZvagbXLdmLm02riyqYNHy9ItB_3fyMX3o	e9RCO5IhUTlFgVBz-SFYfA	2025-12-23 23:43:01.788686	2025-12-23 23:43:02.200237	t	Unknown	159.192.37.76	Huai Mek, Thailand	Android	t	t	ip_geo	2025-12-23 23:48:45.29691	2025-12-23 23:48:45.29691
+\.
+
+
+--
+-- TOC entry 3967 (class 0 OID 16921)
+-- Dependencies: 228
+-- Data for Name: system_settings; Type: TABLE DATA; Schema: public; Owner: privatoffy
+--
+
+COPY public.system_settings (id, setting_key, setting_value, description, updated_by, updated_at) FROM stdin;
+1	site_name	"1klive Admin"	Dashboard site name	\N	2025-12-23 03:43:16.207184
+2	notifications_per_page	20	Number of notifications per page	\N	2025-12-23 03:43:16.207184
+3	session_timeout_hours	24	Admin session timeout in hours	\N	2025-12-23 03:43:16.207184
+4	max_broadcast_size	10000	Max recipients per broadcast	\N	2025-12-23 03:43:16.207184
+5	enable_scheduling	true	Enable notification scheduling	\N	2025-12-23 03:43:16.207184
+6	dark_mode_default	false	Default dark mode preference	\N	2025-12-23 03:43:16.207184
+\.
+
+
+--
+-- TOC entry 4008 (class 0 OID 0)
+-- Dependencies: 225
+-- Name: activity_logs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.activity_logs_id_seq', 18, true);
+
+
+--
+-- TOC entry 4009 (class 0 OID 0)
+-- Dependencies: 223
+-- Name: admin_sessions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.admin_sessions_id_seq', 16, true);
+
+
+--
+-- TOC entry 4010 (class 0 OID 0)
+-- Dependencies: 221
+-- Name: admins_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.admins_id_seq', 4, true);
+
+
+--
+-- TOC entry 4011 (class 0 OID 0)
+-- Dependencies: 229
+-- Name: analytics_snapshots_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.analytics_snapshots_id_seq', 1, false);
+
+
+--
+-- TOC entry 4012 (class 0 OID 0)
+-- Dependencies: 231
+-- Name: health_check_logs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.health_check_logs_id_seq', 1, false);
+
+
+--
+-- TOC entry 4013 (class 0 OID 0)
+-- Dependencies: 219
+-- Name: notification_deliveries_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.notification_deliveries_id_seq', 8, true);
+
+
+--
+-- TOC entry 4014 (class 0 OID 0)
+-- Dependencies: 237
+-- Name: notification_logs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.notification_logs_id_seq', 1, false);
+
+
+--
+-- TOC entry 4015 (class 0 OID 0)
+-- Dependencies: 235
+-- Name: notification_templates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.notification_templates_id_seq', 4, true);
+
+
+--
+-- TOC entry 4016 (class 0 OID 0)
+-- Dependencies: 217
+-- Name: notifications_history_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.notifications_history_id_seq', 8, true);
+
+
+--
+-- TOC entry 4017 (class 0 OID 0)
+-- Dependencies: 215
+-- Name: subscriptions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.subscriptions_id_seq', 22, true);
+
+
+--
+-- TOC entry 4018 (class 0 OID 0)
+-- Dependencies: 227
+-- Name: system_settings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: privatoffy
+--
+
+SELECT pg_catalog.setval('public.system_settings_id_seq', 24, true);
+
+
+--
+-- TOC entry 3779 (class 2606 OID 16914)
+-- Name: activity_logs activity_logs_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.activity_logs
+    ADD CONSTRAINT activity_logs_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3774 (class 2606 OID 16859)
+-- Name: admin_sessions admin_sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.admin_sessions
+    ADD CONSTRAINT admin_sessions_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3765 (class 2606 OID 16844)
+-- Name: admins admins_email_key; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.admins
+    ADD CONSTRAINT admins_email_key UNIQUE (email);
+
+
+--
+-- TOC entry 3767 (class 2606 OID 16840)
+-- Name: admins admins_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.admins
+    ADD CONSTRAINT admins_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3769 (class 2606 OID 16842)
+-- Name: admins admins_username_key; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.admins
+    ADD CONSTRAINT admins_username_key UNIQUE (username);
+
+
+--
+-- TOC entry 3788 (class 2606 OID 16950)
+-- Name: analytics_snapshots analytics_snapshots_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.analytics_snapshots
+    ADD CONSTRAINT analytics_snapshots_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3790 (class 2606 OID 16952)
+-- Name: analytics_snapshots analytics_snapshots_snapshot_date_key; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.analytics_snapshots
+    ADD CONSTRAINT analytics_snapshots_snapshot_date_key UNIQUE (snapshot_date);
+
+
+--
+-- TOC entry 3793 (class 2606 OID 17000)
+-- Name: health_check_logs health_check_logs_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.health_check_logs
+    ADD CONSTRAINT health_check_logs_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3761 (class 2606 OID 16809)
+-- Name: notification_deliveries notification_deliveries_notification_id_subscription_id_key; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_deliveries
+    ADD CONSTRAINT notification_deliveries_notification_id_subscription_id_key UNIQUE (notification_id, subscription_id);
+
+
+--
+-- TOC entry 3763 (class 2606 OID 16807)
+-- Name: notification_deliveries notification_deliveries_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_deliveries
+    ADD CONSTRAINT notification_deliveries_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3803 (class 2606 OID 17062)
+-- Name: notification_logs notification_logs_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_logs
+    ADD CONSTRAINT notification_logs_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3799 (class 2606 OID 17048)
+-- Name: notification_templates notification_templates_name_key; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_templates
+    ADD CONSTRAINT notification_templates_name_key UNIQUE (name);
+
+
+--
+-- TOC entry 3801 (class 2606 OID 17046)
+-- Name: notification_templates notification_templates_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_templates
+    ADD CONSTRAINT notification_templates_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3756 (class 2606 OID 16795)
+-- Name: notifications_history notifications_history_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notifications_history
+    ADD CONSTRAINT notifications_history_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3797 (class 2606 OID 17022)
+-- Name: pwa_config pwa_config_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.pwa_config
+    ADD CONSTRAINT pwa_config_pkey PRIMARY KEY (key);
+
+
+--
+-- TOC entry 3750 (class 2606 OID 16784)
+-- Name: subscriptions subscriptions_endpoint_key; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT subscriptions_endpoint_key UNIQUE (endpoint);
+
+
+--
+-- TOC entry 3752 (class 2606 OID 16782)
+-- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3784 (class 2606 OID 16929)
+-- Name: system_settings system_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.system_settings
+    ADD CONSTRAINT system_settings_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 3786 (class 2606 OID 16931)
+-- Name: system_settings system_settings_setting_key_key; Type: CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.system_settings
+    ADD CONSTRAINT system_settings_setting_key_key UNIQUE (setting_key);
+
+
+--
+-- TOC entry 3780 (class 1259 OID 16964)
+-- Name: idx_activity_action; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_activity_action ON public.activity_logs USING btree (action);
+
+
+--
+-- TOC entry 3781 (class 1259 OID 16963)
+-- Name: idx_activity_admin_id; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_activity_admin_id ON public.activity_logs USING btree (admin_id);
+
+
+--
+-- TOC entry 3782 (class 1259 OID 16965)
+-- Name: idx_activity_created_at; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_activity_created_at ON public.activity_logs USING btree (created_at);
+
+
+--
+-- TOC entry 3770 (class 1259 OID 16954)
+-- Name: idx_admins_email; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_admins_email ON public.admins USING btree (email);
+
+
+--
+-- TOC entry 3771 (class 1259 OID 16955)
+-- Name: idx_admins_is_active; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_admins_is_active ON public.admins USING btree (is_active);
+
+
+--
+-- TOC entry 3772 (class 1259 OID 16953)
+-- Name: idx_admins_username; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_admins_username ON public.admins USING btree (username);
+
+
+--
+-- TOC entry 3791 (class 1259 OID 16966)
+-- Name: idx_analytics_date; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_analytics_date ON public.analytics_snapshots USING btree (snapshot_date);
+
+
+--
+-- TOC entry 3757 (class 1259 OID 16822)
+-- Name: idx_deliveries_delivered; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_deliveries_delivered ON public.notification_deliveries USING btree (delivered, delivered_at);
+
+
+--
+-- TOC entry 3758 (class 1259 OID 16820)
+-- Name: idx_deliveries_notification; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_deliveries_notification ON public.notification_deliveries USING btree (notification_id);
+
+
+--
+-- TOC entry 3759 (class 1259 OID 16821)
+-- Name: idx_deliveries_subscription; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_deliveries_subscription ON public.notification_deliveries USING btree (subscription_id);
+
+
+--
+-- TOC entry 3794 (class 1259 OID 17002)
+-- Name: idx_health_check_checked_at; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_health_check_checked_at ON public.health_check_logs USING btree (checked_at);
+
+
+--
+-- TOC entry 3795 (class 1259 OID 17003)
+-- Name: idx_health_check_url; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_health_check_url ON public.health_check_logs USING btree (target_url);
+
+
+--
+-- TOC entry 3753 (class 1259 OID 16796)
+-- Name: idx_notifications_expires; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_notifications_expires ON public.notifications_history USING btree (expires_at);
+
+
+--
+-- TOC entry 3754 (class 1259 OID 16797)
+-- Name: idx_notifications_sent; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_notifications_sent ON public.notifications_history USING btree (sent_at DESC);
+
+
+--
+-- TOC entry 3775 (class 1259 OID 16956)
+-- Name: idx_sessions_admin_id; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_sessions_admin_id ON public.admin_sessions USING btree (admin_id);
+
+
+--
+-- TOC entry 3776 (class 1259 OID 16958)
+-- Name: idx_sessions_expires_at; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_sessions_expires_at ON public.admin_sessions USING btree (expires_at);
+
+
+--
+-- TOC entry 3777 (class 1259 OID 16957)
+-- Name: idx_sessions_token_hash; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_sessions_token_hash ON public.admin_sessions USING btree (token_hash);
+
+
+--
+-- TOC entry 3747 (class 1259 OID 16825)
+-- Name: idx_subscriptions_carrier; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_subscriptions_carrier ON public.subscriptions USING btree (carrier);
+
+
+--
+-- TOC entry 3748 (class 1259 OID 16826)
+-- Name: idx_subscriptions_mobile_carrier; Type: INDEX; Schema: public; Owner: privatoffy
+--
+
+CREATE INDEX idx_subscriptions_mobile_carrier ON public.subscriptions USING btree (has_mobile_carrier);
+
+
+--
+-- TOC entry 3808 (class 2606 OID 16915)
+-- Name: activity_logs activity_logs_admin_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.activity_logs
+    ADD CONSTRAINT activity_logs_admin_id_fkey FOREIGN KEY (admin_id) REFERENCES public.admins(id);
+
+
+--
+-- TOC entry 3807 (class 2606 OID 16860)
+-- Name: admin_sessions admin_sessions_admin_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.admin_sessions
+    ADD CONSTRAINT admin_sessions_admin_id_fkey FOREIGN KEY (admin_id) REFERENCES public.admins(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3806 (class 2606 OID 16845)
+-- Name: admins admins_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.admins
+    ADD CONSTRAINT admins_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.admins(id);
+
+
+--
+-- TOC entry 3804 (class 2606 OID 16810)
+-- Name: notification_deliveries notification_deliveries_notification_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_deliveries
+    ADD CONSTRAINT notification_deliveries_notification_id_fkey FOREIGN KEY (notification_id) REFERENCES public.notifications_history(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3805 (class 2606 OID 16815)
+-- Name: notification_deliveries notification_deliveries_subscription_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.notification_deliveries
+    ADD CONSTRAINT notification_deliveries_subscription_id_fkey FOREIGN KEY (subscription_id) REFERENCES public.subscriptions(id) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 3809 (class 2606 OID 16932)
+-- Name: system_settings system_settings_updated_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: privatoffy
+--
+
+ALTER TABLE ONLY public.system_settings
+    ADD CONSTRAINT system_settings_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public.admins(id);
+
+
+-- Completed on 2025-12-24 00:41:36 +07
+
+--
+-- PostgreSQL database dump complete
+--
+
