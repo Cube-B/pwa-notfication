@@ -1,0 +1,656 @@
+/* ========================================
+   1klive - PWA Installer Styles
+   Modern Streaming Platform Theme
+   ======================================== */
+
+:root {
+  /* Brand Colors - Modern Streaming Theme */
+  --primary: #FF0050;          /* Vibrant Pink/Red */
+  --primary-dark: #CC0040;     /* Darker Pink */
+  --primary-light: #FF3377;    /* Lighter Pink */
+  --secondary: #6C5CE7;        /* Purple */
+  --accent: #00D9FF;           /* Cyan */
+  --success: #00E676;          /* Green */
+  --warning: #FFC107;          /* Amber */
+  --error: #FF3D00;            /* Red Orange */
+  
+  /* Neutral Colors */
+  --bg-dark: #0F0F1E;          /* Very Dark Blue */
+  --bg-darker: #0A0A14;        /* Almost Black */
+  --bg-card: #1A1A2E;          /* Dark Blue Card */
+  --text-primary: #FFFFFF;
+  --text-secondary: #B4B4C8;
+  --text-muted: #7C7C8A;
+  
+  /* Effects */
+  --shadow: 0 10px 40px rgba(255, 0, 80, 0.2);
+  --shadow-lg: 0 20px 60px rgba(255, 0, 80, 0.3);
+  --glow: 0 0 20px rgba(255, 0, 80, 0.5);
+  
+  /* Animation */
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+}
+
+/* ========================================
+   Background Animation
+   ======================================== */
+#app::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(255, 0, 80, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(108, 92, 231, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(0, 217, 255, 0.05) 0%, transparent 50%);
+  animation: backgroundPulse 10s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes backgroundPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ========================================
+   Common Screen Styles
+   ======================================== */
+.loading-screen,
+.desktop-warning,
+.install-screen,
+.permission-screen,
+.redirect-screen,
+.error-screen {
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  background: var(--bg-card);
+  padding: 40px 30px;
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  animation: slideUp 0.5s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-screen::before,
+.install-screen::before,
+.permission-screen::before,
+.redirect-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ========================================
+   Logo & Icons
+   ======================================== */
+.logo {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: bounce 2s ease-in-out infinite;
+  filter: drop-shadow(var(--glow));
+}
+
+.warning-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Logo Container & Image */
+.logo-container {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(255, 0, 80, 0.1), rgba(108, 92, 231, 0.1));
+  border-radius: 30px;
+  padding: 20px;
+  animation: logoFloat 3s ease-in-out infinite;
+}
+
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 30px rgba(255, 0, 80, 0.3));
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.bell-icon {
+  font-size: 60px;
+  margin: 20px 0;
+  animation: bellRing 1.5s ease-in-out infinite;
+}
+
+.error-icon {
+  font-size: 60px;
+  margin: 15px 0;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.bell-animation {
+  animation: bellRing 1s ease-in-out infinite;
+}
+
+@keyframes bellRing {
+  0%, 100% { transform: rotate(0deg); }
+  10%, 30% { transform: rotate(-10deg); }
+  20%, 40% { transform: rotate(10deg); }
+  50% { transform: rotate(0deg); }
+}
+
+.success-animation {
+  animation: zoomInOut 1.5s ease-in-out infinite;
+}
+
+@keyframes zoomInOut {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* ========================================
+   Typography
+   ======================================== */
+h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+p {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.subtitle {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 30px;
+}
+
+.permission-message {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 25px;
+  line-height: 1.8;
+}
+
+/* ========================================
+   Features List
+   ======================================== */
+.features {
+  margin: 30px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: var(--transition);
+}
+
+.feature:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--primary);
+  transform: translateX(5px);
+}
+
+.feature .icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.feature span:last-child {
+  font-size: 15px;
+  color: var(--text-primary);
+  text-align: left;
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+button {
+  width: 100%;
+  padding: 16px 32px;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  font-family: inherit;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+button:hover::before {
+  left: 100%;
+}
+
+/* Primary Buttons */
+.install-btn,
+.permission-btn,
+.desktop-btn {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  box-shadow: var(--shadow);
+  margin-bottom: 12px;
+}
+
+.install-btn:hover,
+.permission-btn:hover,
+.desktop-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+}
+
+.install-btn:active,
+.permission-btn:active,
+.desktop-btn:active {
+  transform: translateY(0);
+}
+
+.install-btn:disabled,
+.permission-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary Buttons */
+.skip-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 16px;
+  padding: 12px 24px;
+}
+
+.skip-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Error Button */
+.error-btn {
+  background: linear-gradient(135deg, var(--error), #D32F2F);
+  color: white;
+}
+
+.error-btn:hover {
+  background: linear-gradient(135deg, #FF6B3D, var(--error));
+}
+
+/* ========================================
+   Status & Messages
+   ======================================== */
+.status-box {
+  background: rgba(0, 230, 118, 0.1);
+  border: 1px solid var(--success);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.status-text {
+  color: var(--success);
+  font-weight: 500;
+  font-size: 16px;
+  margin: 0;
+}
+
+.error-detail {
+  background: rgba(255, 61, 0, 0.1);
+  border: 1px solid var(--error);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  text-align: left;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* ========================================
+   iOS Instructions
+   ======================================== */
+.ios-instructions {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(108, 92, 231, 0.1);
+  border: 1px solid var(--secondary);
+  border-radius: 12px;
+  text-align: left;
+}
+
+.ios-instructions p {
+  color: var(--secondary);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.ios-instructions ol {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text-secondary);
+}
+
+.ios-instructions li {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+/* ========================================
+   Android Instructions
+   ======================================== */
+.android-instructions {
+  margin-top: 30px;
+  padding: 24px;
+  background: rgba(255, 0, 80, 0.1);
+  border: 2px solid var(--primary);
+  border-radius: 16px;
+  text-align: left;
+}
+
+.instruction-title {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.instruction-steps {
+  margin-bottom: 20px;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  transition: var(--transition);
+}
+
+.step:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(5px);
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.step span:last-child {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.step strong {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.skip-btn-alt {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 16px;
+  padding: 12px 24px;
+  margin-top: 8px;
+}
+
+/* ========================================
+   Loader
+   ======================================== */
+.loader {
+  margin: 20px auto;
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+@media (max-width: 480px) {
+  .loading-screen,
+  .desktop-warning,
+  .install-screen,
+  .permission-screen,
+  .redirect-screen,
+  .error-screen {
+    padding: 30px 20px;
+    border-radius: 20px;
+  }
+
+  .logo,
+  .warning-icon {
+    font-size: 60px;
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+
+  p {
+    font-size: 15px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  button {
+    font-size: 16px;
+    padding: 14px 28px;
+  }
+
+  .skip-btn {
+    font-size: 14px;
+    padding: 10px 20px;
+  }
+}
+
+@media (max-height: 700px) {
+  .logo,
+  .warning-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+
+  .features {
+    margin: 20px 0;
+    gap: 12px;
+  }
+
+  .feature {
+    padding: 12px;
+  }
+
+  button {
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+}
+
+/* ========================================
+   Accessibility
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus styles for keyboard navigation */
+button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
